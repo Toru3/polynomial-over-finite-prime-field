@@ -266,7 +266,15 @@ impl<T: Sized> PolynomialOverP<T> {
             prime: self.prime.clone(),
         }
     }
-    fn one(prime: T) -> Self
+    /** Make one polynomial
+
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::one(5);
+    assert_eq!(p, PolynomialOverP::<i32>::new(vec![1], 5));
+    ```
+    */
+    pub fn one(prime: T) -> Self
     where
         T: One,
     {
