@@ -1,6 +1,7 @@
 /*! PolynomialOverP ring over finite prime field $`\mathbb{F}_p[x]`$
 
 ```
+use num_traits::Zero;
 use polynomial_over_finite_prime_field::PolynomialOverP;
 let p = PolynomialOverP::<i32>::new(vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3], 17);
 let q = PolynomialOverP::<i32>::new(vec![2, 7, 1, 8, 2, 8], 17);
@@ -33,6 +34,7 @@ pub struct PolynomialOverP<T> {
 /** PolynomialOverP ring over finite prime field $`F_p[x]`$
 
 ```
+use num_traits::Zero;
 use polynomial_over_finite_prime_field::PolynomialOverP;
 let p = PolynomialOverP::<i32>::new(vec![3, 1, 4, 1, 5], 17);
 let q = PolynomialOverP::<i32>::new(vec![2, 7, 1], 17);
@@ -101,33 +103,6 @@ impl<T: Sized> PolynomialOverP<T> {
     */
     pub fn prime_ref(&self) -> &T {
         &self.prime
-    }
-    /** Make zero polynomial
-
-    ```
-    use polynomial_over_finite_prime_field::PolynomialOverP;
-    let p = PolynomialOverP::<i32>::zero(5);
-    assert_eq!(p, PolynomialOverP::<i32>::new(vec![0], 5));
-    ```
-    */
-    pub fn zero(prime: T) -> Self {
-        Self {
-            coef: vec![],
-            prime,
-        }
-    }
-    /** Return `true` if polynomial is zero.
-
-    ```
-    use polynomial_over_finite_prime_field::PolynomialOverP;
-    let p = PolynomialOverP::<i32>::new(vec![0], 5);
-    assert!(p.is_zero());
-    let q = PolynomialOverP::<i32>::new(vec![0,-1,0,0,0,1], 5); // x^5-x
-    assert!(!q.is_zero());
-    ```
-    */
-    pub fn is_zero(&self) -> bool {
-        self.deg().is_none()
     }
     fn trim_zero(&mut self)
     where
@@ -199,6 +174,12 @@ impl<T: Sized> PolynomialOverP<T> {
         T: Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
         for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
     {
+        if self.is_zero() {
+            *self = other.clone();
+            return;
+        } else if other.is_zero() {
+            return;
+        }
         let len = self.len();
         self.extend(other.len());
         let prime = self.prime.clone();
@@ -234,8 +215,14 @@ impl<T: Sized> PolynomialOverP<T> {
     fn sub_assign_ref(&mut self, other: &Self)
     where
         T: Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-        for<'x> &'x T: Sub<Output = T> + Neg<Output = T>,
+        for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
     {
+        if self.is_zero() {
+            *self = -other;
+            return;
+        } else if other.is_zero() {
+            return;
+        }
         let len = self.len();
         self.extend(other.len());
         let prime = self.prime.clone();
@@ -253,7 +240,12 @@ impl<T: Sized> PolynomialOverP<T> {
         for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
     {
         if self.is_zero() || other.is_zero() {
-            return Self::zero(self.prime.clone());
+            let prime = if self.prime.is_zero() {
+                other.prime.clone()
+            } else {
+                self.prime.clone()
+            };
+            return Self::new(Vec::new(), prime);
         }
         let mut coef = vec![T::zero(); self.len() + other.len() - 1];
         let prime = self.prime.clone();
@@ -357,6 +349,7 @@ impl<T: Sized> PolynomialOverP<T> {
     /** polynomial division
 
     ```
+    use num_traits::Zero;
     use polynomial_over_finite_prime_field::PolynomialOverP;
     let p = PolynomialOverP::<i32>::new(vec![3, 1, 4, 1, 5], 17);
     let q = PolynomialOverP::<i32>::new(vec![2, 7, 1], 17);
@@ -367,12 +360,24 @@ impl<T: Sized> PolynomialOverP<T> {
     */
     pub fn division(&mut self, other: &Self) -> Self
     where
-        T: Clone + Eq + Zero + One + RingNormalize,
-        for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T>,
+        T: Clone
+            + Ord
+            + Eq
+            + Zero
+            + One
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + RingNormalize,
+        for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
     {
         let g_deg = other.deg().expect("Division by zero");
         if self.deg() < other.deg() {
-            return Self::zero(self.prime.clone());
+            let prime = if self.prime.is_zero() {
+                other.prime.clone()
+            } else {
+                self.prime.clone()
+            };
+            return Self::new(Vec::new(), prime);
         }
         let prime = self.prime.clone();
         let lc_inv = modulo_inverse::<T>(other.lc().unwrap().clone(), prime.clone()).unwrap();
@@ -455,5 +460,21 @@ where
     }
     fn normalize_mut(&mut self) {
         self.monic();
+    }
+}
+
+impl<T> Zero for PolynomialOverP<T>
+where
+    T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
+    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+{
+    fn zero() -> Self {
+        Self {
+            coef: Vec::new(),
+            prime: T::zero(),
+        }
+    }
+    fn is_zero(&self) -> bool {
+        self.deg().is_none()
     }
 }

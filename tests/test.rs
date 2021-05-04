@@ -1,3 +1,4 @@
+use num_traits::Zero;
 use polynomial_over_finite_prime_field::*;
 
 #[test]
