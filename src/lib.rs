@@ -384,7 +384,7 @@ impl<T: Sized> PolynomialOverP<T> {
         let mut coef = vec![T::zero(); self.len() - other.len() + 1];
         while self.deg() >= other.deg() {
             let d = self.deg().unwrap() - g_deg;
-            let c = mul_mod::<T>(&self.lc().unwrap(), &lc_inv, &prime);
+            let c = mul_mod::<T>(self.lc().unwrap(), &lc_inv, &prime);
             for i in 0..other.len() - 1 {
                 self.coef[i + d] = &(&self.coef[i + d] - &(&c * &other.coef[i])) % &prime;
             }
