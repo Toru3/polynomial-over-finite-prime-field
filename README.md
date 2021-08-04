@@ -8,3 +8,6 @@ let mut r = p.clone();
 let d = r.division(&q);
 assert!((d * q + r - p).is_zero());
 ```
+
+# Licence
+AGPL-3.0-or-later
