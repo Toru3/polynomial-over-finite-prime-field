@@ -309,6 +309,7 @@ impl<T: Sized> PolynomialOverP<T> {
     assert_eq!(q.derivative(), PolynomialOverP::<usize>::new(vec![2, 1, 2, 2, 0, 1], 5));
     ```
     */
+    #[must_use]
     pub fn derivative(self) -> Self
     where
         T: Clone + Zero + for<'x> AddAssign<&'x T> + From<usize>,
@@ -358,6 +359,7 @@ impl<T: Sized> PolynomialOverP<T> {
     assert!((d * q + r - p).is_zero());
     ```
     */
+    #[allow(clippy::return_self_not_must_use)]
     pub fn division(&mut self, other: &Self) -> Self
     where
         T: Clone
