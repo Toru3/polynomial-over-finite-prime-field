@@ -359,7 +359,7 @@ impl<T: Sized> PolynomialOverP<T> {
     assert!((d * q + r - p).is_zero());
     ```
     */
-    #[allow(clippy::return_self_not_must_use)]
+    #[allow(unknown_lints, clippy::return_self_not_must_use)]
     pub fn division(&mut self, other: &Self) -> Self
     where
         T: Clone
