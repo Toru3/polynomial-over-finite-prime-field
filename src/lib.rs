@@ -85,7 +85,7 @@ impl<T: Sized> PolynomialOverP<T> {
     let p = PolynomialOverP::<i32>::new(vec![3, 2, 1], 5); // 3+2x+x^2
     assert_eq!(p.coefs(), vec![3, 2, 1]);
     let q = PolynomialOverP::<i32>::new(vec![0], 5); // 0
-    assert_eq!(q.coefs(), vec![]);
+    assert_eq!(q.coefs(), Vec::<i32>::new());
     ```
     */
     pub fn coefs(self) -> Vec<T> {
