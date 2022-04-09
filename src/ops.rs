@@ -235,7 +235,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = PolynomialOverP<T>;
     fn div(self, other: Self) -> Self::Output {
@@ -254,7 +254,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = PolynomialOverP<T>;
     fn div(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -273,7 +273,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = Self;
     fn div(mut self, other: Self) -> Self::Output {
@@ -291,7 +291,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = Self;
     fn div(mut self, other: &Self) -> Self::Output {
@@ -311,7 +311,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     fn div_assign(&mut self, other: &Self) {
         *self = &*self / other;
@@ -328,7 +328,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     fn div_assign(&mut self, other: Self) {
         *self = &*self / &other;
@@ -347,7 +347,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     fn rem_assign(&mut self, other: &Self) {
         self.division(other);
@@ -364,7 +364,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     fn rem_assign(&mut self, other: Self) {
         self.division(&other);
@@ -383,7 +383,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = PolynomialOverP<T>;
     fn rem(self, other: Self) -> Self::Output {
@@ -403,7 +403,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = PolynomialOverP<T>;
     fn rem(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -423,7 +423,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = Self;
     fn rem(mut self, other: &Self) -> Self::Output {
@@ -442,7 +442,7 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     type Output = Self;
     fn rem(mut self, other: Self) -> Self::Output {

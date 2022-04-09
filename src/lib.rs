@@ -1,3 +1,4 @@
+#![recursion_limit = "16"]
 /*! PolynomialOverP ring over finite prime field $`\mathbb{F}_p[x]`$
 
 ```
@@ -23,7 +24,7 @@ use modulo_n_tools::{add_mod, mul_mod, sub_mod};
 use num_traits::{One, Zero};
 use ring_algorithm::{modulo_inverse, RingNormalize};
 use sealed::Sized;
-use std::ops::{Add, AddAssign, Mul, Neg, Rem, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, Neg, Rem, Sub, SubAssign, Div};
 mod ops;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -337,7 +338,7 @@ impl<T: Sized> PolynomialOverP<T> {
     pub fn monic(&mut self)
     where
         T: Clone + Eq + Zero + One + RingNormalize,
-        for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T>,
+        for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T>+ Rem<Output=T>,
     {
         if let Some(lc) = self.lc() {
             let prime = self.prime.clone();
@@ -370,7 +371,7 @@ impl<T: Sized> PolynomialOverP<T> {
             + for<'x> AddAssign<&'x T>
             + for<'x> SubAssign<&'x T>
             + RingNormalize,
-        for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T> + Neg<Output = T>,
+        for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
     {
         let g_deg = other.deg().expect("Division by zero");
         if self.deg() < other.deg() {
@@ -451,7 +452,7 @@ where
 impl<T> RingNormalize for PolynomialOverP<T>
 where
     T: Sized + Clone + Eq + Zero + One + RingNormalize,
-    for<'x> &'x T: ring_algorithm::EuclideanRingOperation<T>,
+    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
 {
     fn leading_unit(&self) -> Self {
         if let Some(x) = self.lc() {
