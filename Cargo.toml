@@ -1,6 +1,6 @@
 [package]
 name = "polynomial-over-finite-prime-field"
-version = "0.3.2"
+version = "0.4.0"
 authors = ["Toru3 <ryuutet@gmail.com>"]
 edition = "2021"
 description = "polynomial over finite prime field"
