@@ -1,4 +1,3 @@
-#![recursion_limit = "16"]
 /*! PolynomialOverP ring over finite prime field $`\mathbb{F}_p[x]`$
 
 ```
@@ -11,7 +10,6 @@ let d = r.division(&q);
 assert!((d * q + r - p).is_zero());
 ```
 */
-#![cfg_attr(feature = "__internal_inject_debug", recursion_limit = "8")]
 mod sealed {
     pub trait SizedExt: std::marker::Sized + std::fmt::Debug + std::fmt::Display {}
     impl<T> SizedExt for T where T: std::marker::Sized + std::fmt::Debug + std::fmt::Display {}
