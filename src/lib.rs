@@ -24,14 +24,9 @@ use modulo_n_tools::{add_mod, mul_mod, sub_mod};
 use num_traits::{One, Zero};
 use ring_algorithm::{modulo_inverse, RingNormalize};
 use sealed::Sized;
-use std::ops::{Add, AddAssign, Mul, Neg, Rem, Sub, SubAssign, Div};
+use std::ops::{Add, AddAssign, Div, Mul, Neg, Rem, Sub, SubAssign};
 mod ops;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PolynomialOverP<T> {
-    coef: Vec<T>,
-    prime: T,
-}
 /** PolynomialOverP ring over finite prime field $`F_p[x]`$
 
 ```
@@ -44,6 +39,38 @@ let d = r.division(&q);
 assert!((d * q + r - p).is_zero());
 ```
 */
+#[derive(Clone, Debug)]
+pub struct PolynomialOverP<T> {
+    coef: Vec<T>,
+    prime: T,
+}
+
+impl<T: Sized> PartialEq for PolynomialOverP<T>
+where
+    T: Clone + Eq + Zero,
+    for<'x> &'x T: Sub<Output = T> + Rem<Output = T>,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.prime != other.prime {
+            return false;
+        }
+        if self.coef.len() != other.coef.len() {
+            return false;
+        }
+        for (v, w) in self.coef.iter().zip(other.coef.iter()) {
+            if !(&(v - w) % &self.prime).is_zero() {
+                return false;
+            }
+        }
+        true
+    }
+}
+impl<T: Sized> Eq for PolynomialOverP<T>
+where
+    T: Clone + Eq + Zero,
+    for<'x> &'x T: Sub<Output = T> + Rem<Output = T>,
+{
+}
 
 impl<T: Sized> PolynomialOverP<T> {
     fn len(&self) -> usize {
@@ -173,7 +200,7 @@ impl<T: Sized> PolynomialOverP<T> {
     fn add_assign_ref(&mut self, other: &Self)
     where
         T: Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-        for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+        for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
     {
         if self.is_zero() {
             *self = other.clone();
@@ -216,7 +243,7 @@ impl<T: Sized> PolynomialOverP<T> {
     fn sub_assign_ref(&mut self, other: &Self)
     where
         T: Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-        for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+        for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
     {
         if self.is_zero() {
             *self = -other;
@@ -238,7 +265,8 @@ impl<T: Sized> PolynomialOverP<T> {
     fn mul_impl(&self, other: &Self) -> Self
     where
         T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-        for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+        for<'x> &'x T:
+            Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
     {
         if self.is_zero() || other.is_zero() {
             let prime = if self.prime.is_zero() {
@@ -338,7 +366,8 @@ impl<T: Sized> PolynomialOverP<T> {
     pub fn monic(&mut self)
     where
         T: Clone + Eq + Zero + One + RingNormalize,
-        for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T>+ Rem<Output=T>,
+        for<'x> &'x T:
+            Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
     {
         if let Some(lc) = self.lc() {
             let prime = self.prime.clone();
@@ -371,7 +400,8 @@ impl<T: Sized> PolynomialOverP<T> {
             + for<'x> AddAssign<&'x T>
             + for<'x> SubAssign<&'x T>
             + RingNormalize,
-        for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+        for<'x> &'x T:
+            Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
     {
         let g_deg = other.deg().expect("Division by zero");
         if self.deg() < other.deg() {
@@ -452,7 +482,8 @@ where
 impl<T> RingNormalize for PolynomialOverP<T>
 where
     T: Sized + Clone + Eq + Zero + One + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     fn leading_unit(&self) -> Self {
         if let Some(x) = self.lc() {
@@ -469,7 +500,7 @@ where
 impl<T> Zero for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     fn zero() -> Self {
         Self {

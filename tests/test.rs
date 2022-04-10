@@ -59,3 +59,13 @@ fn mul() {
     let r = PolynomialOverP::<i32>::new(vec![4, 3, 3, 2, 3], 5);
     assert_eq!(p * q, r);
 }
+
+#[test]
+fn eq() {
+    let p = PolynomialOverP::<i32>::new(vec![1, 2, 3], 5);
+    let q = PolynomialOverP::<i32>::new(vec![-4, -3, -2], 5);
+    assert_eq!(p, q);
+    let p = PolynomialOverP::<i32>::new(vec![1, 2, 3], 5);
+    let q = PolynomialOverP::<i32>::new(vec![1, 2, 3], 7);
+    assert_ne!(p, q);
+}

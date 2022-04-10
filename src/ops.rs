@@ -8,7 +8,7 @@ use std::ops::{
 impl<'a, T> AddAssign<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     fn add_assign(&mut self, other: &Self) {
         self.add_assign_ref(other);
@@ -17,7 +17,7 @@ where
 impl<T> AddAssign for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     fn add_assign(&mut self, other: Self) {
         *self += &other
@@ -28,7 +28,7 @@ where
 impl<'a, T> Add for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn add(self, other: Self) -> Self::Output {
@@ -40,7 +40,7 @@ where
 impl<'a, T> Add<PolynomialOverP<T>> for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn add(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -52,7 +52,7 @@ where
 impl<'a, T> Add<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn add(mut self, other: &Self) -> Self::Output {
@@ -63,7 +63,7 @@ where
 impl<T> Add for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn add(mut self, other: PolynomialOverP<T>) -> Self::Output {
@@ -97,7 +97,7 @@ where
 impl<'a, T> SubAssign<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     fn sub_assign(&mut self, other: &Self) {
         self.sub_assign_ref(other)
@@ -106,7 +106,7 @@ where
 impl<T> SubAssign for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     fn sub_assign(&mut self, other: Self) {
         *self -= &other
@@ -117,7 +117,7 @@ where
 impl<'a, T> Sub for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn sub(self, other: Self) -> Self::Output {
@@ -129,7 +129,7 @@ where
 impl<'a, T> Sub<PolynomialOverP<T>> for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn sub(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -141,7 +141,7 @@ where
 impl<'a, T> Sub<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn sub(mut self, other: &Self) -> Self::Output {
@@ -152,7 +152,7 @@ where
 impl<T> Sub for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T>,
+    for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn sub(mut self, other: PolynomialOverP<T>) -> Self::Output {
@@ -165,7 +165,8 @@ where
 impl<'a, T> Mul for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn mul(self, other: Self) -> Self::Output {
@@ -175,7 +176,8 @@ where
 impl<'a, T> Mul<PolynomialOverP<T>> for &'a PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn mul(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -185,7 +187,8 @@ where
 impl<T> Mul for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn mul(self, other: Self) -> Self::Output {
@@ -194,8 +197,15 @@ where
 }
 impl<'a, T> Mul<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
-    T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    T: Sized
+        + Clone
+        + Ord
+        + Zero
+        + Sub<Output = T>
+        + for<'x> AddAssign<&'x T>
+        + for<'x> SubAssign<&'x T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn mul(self, other: &Self) -> Self::Output {
@@ -207,7 +217,8 @@ where
 impl<'a, T> MulAssign<&'a PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     fn mul_assign(&mut self, other: &Self) {
         *self = &*self * other;
@@ -216,7 +227,8 @@ where
 impl<T> MulAssign for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
-    for<'x> &'x T: Add<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
 {
     fn mul_assign(&mut self, other: Self) {
         *self = &*self * &other;
@@ -235,7 +247,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn div(self, other: Self) -> Self::Output {
@@ -254,7 +267,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn div(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -273,7 +287,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn div(mut self, other: Self) -> Self::Output {
@@ -291,7 +306,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn div(mut self, other: &Self) -> Self::Output {
@@ -311,7 +327,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     fn div_assign(&mut self, other: &Self) {
         *self = &*self / other;
@@ -328,7 +345,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     fn div_assign(&mut self, other: Self) {
         *self = &*self / &other;
@@ -347,7 +365,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     fn rem_assign(&mut self, other: &Self) {
         self.division(other);
@@ -364,7 +383,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     fn rem_assign(&mut self, other: Self) {
         self.division(&other);
@@ -383,7 +403,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn rem(self, other: Self) -> Self::Output {
@@ -403,7 +424,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = PolynomialOverP<T>;
     fn rem(self, other: PolynomialOverP<T>) -> Self::Output {
@@ -423,7 +445,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn rem(mut self, other: &Self) -> Self::Output {
@@ -442,7 +465,8 @@ where
         + for<'x> AddAssign<&'x T>
         + for<'x> SubAssign<&'x T>
         + RingNormalize,
-    for<'x> &'x T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T> + Rem<Output=T>,
+    for<'x> &'x T:
+        Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Rem<Output = T>,
 {
     type Output = Self;
     fn rem(mut self, other: Self) -> Self::Output {
