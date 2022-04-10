@@ -2,7 +2,7 @@
 name = "polynomial-over-finite-prime-field"
 version = "0.3.2"
 authors = ["Toru3 <ryuutet@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "polynomial over finite prime field"
 license = "AGPL-3.0-or-later"
 documentation = "https://docs.rs/polynomial-over-finite-prime-field/"
