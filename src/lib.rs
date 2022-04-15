@@ -428,6 +428,54 @@ impl<T: Sized> PolynomialOverP<T> {
             prime: self.prime.clone(),
         }
     }
+    /** calclate $`\displaystyle \sqrt[p]{f}`$
+
+    Return `Some` if input polynomial is $`\displaystyle \sum_{i=0}^{n} c_{ip}x^{ip}`$.
+    Otherwize returns `None`.
+    ```
+    use num_traits::Zero;
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<usize>::new(vec![3, 0, 1, 0, 4], 2);
+    let q = p.pth_root().unwrap();
+    assert_eq!(q, PolynomialOverP::<usize>::new(vec![3, 1, 4], 2));
+    let p = PolynomialOverP::<usize>::new(vec![2, 0, 0, 7, 0, 0, 1], 3);
+    let q = p.pth_root().unwrap();
+    assert_eq!(q, PolynomialOverP::<usize>::new(vec![2, 7, 1], 3));
+    let p = PolynomialOverP::<usize>::new(vec![3, 0, 1, 0, 2, 9], 2);
+    let q = p.pth_root();
+    assert_eq!(q, None);
+    ```
+    */
+    pub fn pth_root(mut self) -> Option<Self>
+    where
+        T: Clone + Eq + Zero + From<usize> + TryInto<usize>,
+        for<'x> &'x T: Rem<Output = T>,
+        usize: std::convert::TryFrom<T>,
+    {
+        let b = self
+            .coef
+            .iter()
+            .enumerate()
+            .all(|(i, c)| (&T::from(i) % &self.prime).is_zero() != c.is_zero());
+        if !b {
+            return None;
+        }
+        let n = self.coef.len();
+        let p = match usize::try_from(self.prime.clone()) {
+            Ok(x) => x,
+            Err(_) => return None,
+        };
+        let mut i = 1;
+        let mut j = p;
+        while j < n {
+            let (c1, c2) = self.coef.split_at_mut(j);
+            std::mem::swap(&mut c1[i], &mut c2[0]);
+            i += 1;
+            j += p;
+        }
+        self.coef.truncate(i);
+        Some(Self::new(self.coef, self.prime))
+    }
 }
 
 fn mul_aux<T>(sum: &mut [T], coef: &T, vec: &[T], prime: &T)
