@@ -476,6 +476,28 @@ impl<T: Sized> PolynomialOverP<T> {
         self.coef.truncate(i);
         Some(Self::new(self.coef, self.prime))
     }
+    /** to positive
+
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let mut p = PolynomialOverP::<i32>::new(vec![-3, 1, -4, 1, -5], 7);
+    p.to_positive();
+    let q = PolynomialOverP::<i32>::new(vec![4, 1, 3, 1, 2], 7);
+    assert_eq!(p, q);
+    ```
+    */
+    pub fn to_positive(&mut self)
+    where
+        T: Zero + Ord + for<'x> AddAssign<&'x T>,
+    {
+        let z = T::zero();
+        let p = &self.prime;
+        self.coef.iter_mut().for_each(|x| {
+            if *x < z {
+                *x += p;
+            }
+        });
+    }
 }
 
 fn mul_aux<T>(sum: &mut [T], coef: &T, vec: &[T], prime: &T)
