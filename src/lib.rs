@@ -441,6 +441,9 @@ impl<T: Sized> PolynomialOverP<T> {
     let p = PolynomialOverP::<usize>::new(vec![2, 0, 0, 7, 0, 0, 1], 3);
     let q = p.pth_root().unwrap();
     assert_eq!(q, PolynomialOverP::<usize>::new(vec![2, 7, 1], 3));
+    let p = PolynomialOverP::<usize>::new(vec![1, 0, 0, 0, 1], 2);
+    let q = p.pth_root().unwrap();
+    assert_eq!(q, PolynomialOverP::<usize>::new(vec![1, 0, 1], 2));
     let p = PolynomialOverP::<usize>::new(vec![3, 0, 1, 0, 2, 9], 2);
     let q = p.pth_root();
     assert_eq!(q, None);
@@ -452,11 +455,14 @@ impl<T: Sized> PolynomialOverP<T> {
         for<'x> &'x T: Rem<Output = T>,
         usize: std::convert::TryFrom<T>,
     {
+        //     i % p != 0 => c == 0
+        // <=> !(i % p !=0) || c == 0
+        // <=> i % p == 0 || c == 0
         let b = self
             .coef
             .iter()
             .enumerate()
-            .all(|(i, c)| (&T::from(i) % &self.prime).is_zero() != c.is_zero());
+            .all(|(i, c)| (&T::from(i) % &self.prime).is_zero() || c.is_zero());
         if !b {
             return None;
         }
