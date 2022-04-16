@@ -22,6 +22,7 @@ use modulo_n_tools::{add_mod, mul_mod, sub_mod};
 use num_traits::{One, Zero};
 use ring_algorithm::{modulo_inverse, RingNormalize};
 use sealed::Sized;
+use std::fmt::Debug;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Rem, Sub, SubAssign};
 mod ops;
 
@@ -339,15 +340,16 @@ impl<T: Sized> PolynomialOverP<T> {
     #[must_use]
     pub fn derivative(self) -> Self
     where
-        T: Clone + Zero + for<'x> AddAssign<&'x T> + From<usize>,
+        T: Clone + Zero + for<'x> AddAssign<&'x T> + TryFrom<usize>,
         for<'x> &'x T: Mul<Output = T> + Rem<Output = T>,
+        <T as TryFrom<usize>>::Error: Debug,
     {
         let Self { coef, prime } = self;
         let coef = coef
             .into_iter()
             .enumerate()
             .skip(1)
-            .map(|(i, c)| mul_mod::<T>(&T::from(i), &c, &prime))
+            .map(|(i, c)| mul_mod::<T>(&T::try_from(i).unwrap(), &c, &prime))
             .collect();
         PolynomialOverP::<T>::new(coef, prime)
     }
@@ -451,9 +453,10 @@ impl<T: Sized> PolynomialOverP<T> {
     */
     pub fn pth_root(mut self) -> Option<Self>
     where
-        T: Clone + Eq + Zero + From<usize> + TryInto<usize>,
+        T: Clone + Eq + Zero + TryFrom<usize> + TryInto<usize>,
         for<'x> &'x T: Rem<Output = T>,
         usize: std::convert::TryFrom<T>,
+        <T as TryFrom<usize>>::Error: Debug,
     {
         //     i % p != 0 => c == 0
         // <=> !(i % p !=0) || c == 0
@@ -462,7 +465,7 @@ impl<T: Sized> PolynomialOverP<T> {
             .coef
             .iter()
             .enumerate()
-            .all(|(i, c)| (&T::from(i) % &self.prime).is_zero() || c.is_zero());
+            .all(|(i, c)| (&T::try_from(i).unwrap() % &self.prime).is_zero() || c.is_zero());
         if !b {
             return None;
         }
