@@ -372,7 +372,7 @@ where
         self.division(other);
     }
 }
-impl<'a, T> RemAssign for PolynomialOverP<T>
+impl<T> RemAssign for PolynomialOverP<T>
 where
     T: Sized
         + Clone
