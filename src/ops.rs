@@ -24,7 +24,7 @@ where
         self.neg_impl()
     }
 }
-impl<'a, T> Neg for &'a PolynomialOverP<T>
+impl<T> Neg for &PolynomialOverP<T>
 where
     T: Sized + Clone,
     for<'x> &'x T: Neg<Output = T>,
@@ -36,7 +36,7 @@ where
 }
 
 #[auto_impl_ops::auto_ops]
-impl<'a, T> SubAssign<&'a PolynomialOverP<T>> for PolynomialOverP<T>
+impl<T> SubAssign<&PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized + Clone + Ord + Zero + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
     for<'x> &'x T: Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Rem<Output = T>,
@@ -60,7 +60,7 @@ where
 }
 
 #[auto_impl_ops::auto_ops]
-impl<'a, T> Div for &'a PolynomialOverP<T>
+impl<T> Div for &PolynomialOverP<T>
 where
     T: Sized
         + Clone
@@ -82,7 +82,7 @@ where
 }
 
 #[auto_impl_ops::auto_ops]
-impl<'a, T> RemAssign<&'a PolynomialOverP<T>> for PolynomialOverP<T>
+impl<T> RemAssign<&PolynomialOverP<T>> for PolynomialOverP<T>
 where
     T: Sized
         + Clone
