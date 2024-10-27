@@ -15,10 +15,11 @@ test:
     # 現在のversionの表示
     - rustup --version && cargo --version
     # Cargo.lock の更新
+    - time cargo update
     - if [ "${USE_MINIMAL_VERSIONS:-false}" = "false" ]; then
-    -     time cargo +nightly update
+    -     cargo +nightly update
     - else
-    -     time cargo +nightly update -Z minimal-versions
+    -     cargo +nightly update -Z minimal-versions
     - fi
     - cargo fetch # ソースコードのダウンロード
     - cargo fmt --all -- --check --verbose # フォーマットチェック
