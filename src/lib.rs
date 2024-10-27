@@ -10,13 +10,15 @@ let d = r.division(&q);
 assert!((d * q + r - p).is_zero());
 ```
 */
+#[cfg(feature = "__internal_inject_debug")]
 mod sealed {
     pub trait SizedExt: std::marker::Sized + std::fmt::Debug + std::fmt::Display {}
     impl<T> SizedExt for T where T: std::marker::Sized + std::fmt::Debug + std::fmt::Display {}
-    #[cfg(not(feature = "__internal_inject_debug"))]
-    pub use std::marker::Sized;
-    #[cfg(feature = "__internal_inject_debug")]
     pub use SizedExt as Sized;
+}
+#[cfg(not(feature = "__internal_inject_debug"))]
+mod sealed {
+    pub use std::marker::Sized;
 }
 use modulo_n_tools::{add_mod, mul_mod, sub_mod};
 use num_traits::{One, Zero};
