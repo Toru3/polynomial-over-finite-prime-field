@@ -14,9 +14,10 @@ categories = ["data-structures", "algorithms", "mathematics"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+auto-impl-ops = { version = "0.2.1", features = ["take_mut"] }
 modulo-n-tools = "0.2.0"
 num-traits = "0.2.14"
-ring-algorithm = "0.6.0"
+ring-algorithm = "0.7.0"
 [features]
 default = []
 __internal_inject_debug = [] # DO NOT USE
