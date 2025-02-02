@@ -18,7 +18,8 @@ rust-version = "1.65"
 auto-impl-ops = { version = "0.2.1", features = ["take_mut"] }
 modulo-n-tools = "0.2.0"
 num-traits = "0.2.14"
-ring-algorithm = "0.7.0"
+ring-algorithm = "0.8.0"
+take_mut = "0.2.2"
 [features]
 default = []
 __internal_inject_debug = [] # DO NOT USE

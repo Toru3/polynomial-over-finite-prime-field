@@ -69,3 +69,55 @@ fn eq() {
     let q = PolynomialOverP::<i32>::new(vec![1, 2, 3], 7);
     assert_ne!(p, q);
 }
+
+#[test]
+fn square_free_decomposition_1() {
+    let p = PolynomialOverP::<i32>::new(vec![1, 3, 4, 3, 1], 5);
+    let v = p.square_free_decomposition();
+    let q0 = PolynomialOverP::<i32>::new(vec![1, 1], 5);
+    let q1 = PolynomialOverP::<i32>::new(vec![1, 1, 1], 5);
+    let w = vec![(q1, 1), (q0, 2)];
+    assert_eq!(v, w);
+}
+
+#[test]
+fn square_free_decomposition_2() {
+    let p = PolynomialOverP::<i32>::new(vec![2, 1, 0, 3, 1, 0, 0, 4, 1, 1], 5);
+    let v = p.square_free_decomposition();
+    let q0 = PolynomialOverP::<i32>::new(vec![1, 1], 5);
+    let q1 = PolynomialOverP::<i32>::new(vec![1, 1, 1], 5);
+    let q2 = PolynomialOverP::<i32>::new(vec![2, 1, 1], 5);
+    let w = vec![(q2, 1), (q1, 2), (q0, 3)];
+    assert_eq!(v, w);
+}
+
+#[test]
+fn square_free_decomposition_3() {
+    let p = PolynomialOverP::<i32>::new(vec![2, 0, 4, 4, 2, 0, 1, 4, 4, 2, 3, 1], 5);
+    let v = p.square_free_decomposition();
+    let q0 = PolynomialOverP::<i32>::new(vec![1, 1], 5);
+    let q1 = PolynomialOverP::<i32>::new(vec![1, 1, 1], 5);
+    let q2 = PolynomialOverP::<i32>::new(vec![2, 1, 1], 5);
+    let w = vec![(q2, 1), (q1, 2), (q0, 5)];
+    assert_eq!(v, w);
+}
+
+#[test]
+fn square_free_decomposition_4() {
+    let p = PolynomialOverP::<i32>::new(vec![0, 1, 0, 0, 0, 1], 2);
+    let v = p.square_free_decomposition();
+    let q0 = PolynomialOverP::<i32>::new(vec![0, 1], 2);
+    let q1 = PolynomialOverP::<i32>::new(vec![1, 1], 2);
+    let w = vec![(q0, 1), (q1, 4)];
+    assert_eq!(v, w);
+}
+
+#[test]
+fn distinct_degree_factorization_1() {
+    let p = PolynomialOverP::<i32>::new(vec![1, 2, 1, 1, 1], 3);
+    let v = p.distinct_degree_factorization();
+    let q1 = PolynomialOverP::<i32>::new(vec![2, 0, 1], 3);
+    let q2 = PolynomialOverP::<i32>::new(vec![2, 1, 1], 3);
+    let w = vec![Some(q1), Some(q2)];
+    assert_eq!(v, w);
+}

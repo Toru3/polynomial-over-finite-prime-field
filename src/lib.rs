@@ -24,8 +24,8 @@ use modulo_n_tools::{add_mod, mul_mod, sub_mod};
 use num_traits::{One, Zero};
 use ring_algorithm::{modulo_inverse, RingNormalize};
 use sealed::Sized;
-use std::fmt::Debug;
-use std::ops::{Add, AddAssign, Div, Mul, Neg, Rem, Sub, SubAssign};
+use std::error::Error;
+use std::ops::{Add, AddAssign, BitAnd, Div, Mul, MulAssign, Neg, Rem, ShrAssign, Sub, SubAssign};
 mod ops;
 
 /** PolynomialOverP ring over finite prime field $`F_p[x]`$
@@ -93,6 +93,36 @@ impl<T: Sized> PolynomialOverP<T> {
         } else {
             Some(self.len() - 1)
         }
+    }
+    /** decide polynomial is at most `d`-degree
+
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::new(vec![3, 2, 1], 5); // 3+2x+x^2
+    assert!(!p.is_at_most_degree(1));
+    let q = PolynomialOverP::<i32>::new(vec![0], 5); // 0
+    assert!(q.is_at_most_degree(1));
+    ```
+    */
+    pub fn is_at_most_degree(&self, d: usize) -> bool {
+        if let Some(n) = self.deg() {
+            n <= d
+        } else {
+            true
+        }
+    }
+    /** decide polynomial is const
+
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::new(vec![3, 2, 1], 5); // 3+2x+x^2
+    assert!(!p.is_const());
+    let q = PolynomialOverP::<i32>::new(vec![0], 5); // 0
+    assert!(q.is_const());
+    ```
+    */
+    pub fn is_const(&self) -> bool {
+        self.is_at_most_degree(0)
     }
     /** leading coefficent
 
@@ -344,7 +374,7 @@ impl<T: Sized> PolynomialOverP<T> {
     where
         T: Clone + Zero + for<'x> AddAssign<&'x T> + TryFrom<usize>,
         for<'x> &'x T: Mul<Output = T> + Rem<Output = T>,
-        <T as TryFrom<usize>>::Error: Debug,
+        <T as TryFrom<usize>>::Error: Error,
     {
         let Self { coef, prime } = self;
         let coef = coef
@@ -432,6 +462,37 @@ impl<T: Sized> PolynomialOverP<T> {
             prime: self.prime.clone(),
         }
     }
+    /** check `self` divides `other` or not
+
+    ```
+    use num_traits::Zero;
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::new(vec![6, 5, 1], 17); // = (x + 2)(x + 3)
+    let q = PolynomialOverP::<i32>::new(vec![3, 1], 17);
+    let r = PolynomialOverP::<i32>::new(vec![4, 1], 17);
+    assert!(q.divides(&p));
+    assert!(!r.divides(&p));
+    ```
+    */
+    pub fn divides(&self, other: &Self) -> bool
+    where
+        T: Clone
+            + Ord
+            + Eq
+            + Zero
+            + One
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + RingNormalize,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Neg<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>,
+    {
+        (other % self).is_zero()
+    }
     /** calclate $`\displaystyle \sqrt[p]{f}`$
 
     Return `Some` if input polynomial is $`\displaystyle \sum_{i=0}^{n} c_{ip}x^{ip}`$.
@@ -458,7 +519,7 @@ impl<T: Sized> PolynomialOverP<T> {
         T: Clone + Eq + Zero + TryFrom<usize> + TryInto<usize>,
         for<'x> &'x T: Rem<Output = T>,
         usize: std::convert::TryFrom<T>,
-        <T as TryFrom<usize>>::Error: Debug,
+        <T as TryFrom<usize>>::Error: Error,
     {
         //     i % p != 0 => c == 0
         // <=> !(i % p !=0) || c == 0
@@ -508,6 +569,261 @@ impl<T: Sized> PolynomialOverP<T> {
                 *x += p;
             }
         });
+    }
+    pub fn gcd(self, g: Self) -> Self
+    where
+        T: Sized
+            + Clone
+            + Ord
+            + Zero
+            + One
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + RingNormalize,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>
+            + Neg<Output = T>,
+    {
+        ring_algorithm::gcd::<Self>(self, g).into_normalize()
+    }
+    pub fn power(self, e: usize) -> Self
+    where
+        T: Sized + Clone + Ord + Zero + One + for<'x> AddAssign<&'x T> + for<'x> SubAssign<&'x T>,
+        for<'x> &'x T:
+            Add<Output = T> + Sub<Output = T> + Neg<Output = T> + Mul<Output = T> + Rem<Output = T>,
+    {
+        let one = Self::one(self.prime_ref().clone());
+        ring_algorithm::mul_power::<Self, _>(one, self, e)
+    }
+    pub fn pow_mod<U>(self, e: U, modulus: &Self) -> Self
+    where
+        T: Sized
+            + Clone
+            + Ord
+            + Zero
+            + One
+            + RingNormalize
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + for<'x> MulAssign<&'x T>,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Neg<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>,
+        U: Sized + Ord + ShrAssign<u8> + From<u8>,
+        for<'x> &'x U: BitAnd<Output = U>,
+    {
+        let one = Self::one(self.prime_ref().clone());
+        modulo_n_tools::mul_pow_mod::<Self, U>(one, self, e, modulus)
+    }
+    /** square free decomposition
+
+    Output is `Vec<(factor, exponent)>`. Every factor is square free.
+    `input == out[0].0.power(out[0].1) * out[1].0.power(out[1].1) * ... * out[n-1].0.power(out[n-1].1)`
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::new(vec![1, 3, 4, 3, 1], 5); // (x+1)^2*(x^2+x+1)
+    let v = p.square_free_decomposition();
+    let q0 = PolynomialOverP::<i32>::new(vec![1, 1], 5); // x+1
+    let q1 = PolynomialOverP::<i32>::new(vec![1, 1, 1], 5); // x^2+x+1
+    let w = vec![(q1, 1), (q0, 2)];
+    assert_eq!(v, w);
+    ```
+    */
+    pub fn square_free_decomposition(self) -> Vec<(Self, usize)>
+    where
+        T: Sized
+            + Clone
+            + Ord
+            + Zero
+            + One
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + TryFrom<usize>
+            + RingNormalize,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>
+            + Neg<Output = T>,
+        <T as TryFrom<usize>>::Error: Error,
+        <usize as TryFrom<T>>::Error: Error,
+        usize: TryFrom<T>,
+    {
+        let p = self.prime_ref().clone();
+        let mut prod = Self::one(p.clone());
+        let mut ret = Vec::new();
+        {
+            let df = self.clone().derivative();
+            let mut high = self.clone().gcd(df);
+            debug_assert!(high.divides(&self));
+            let mut main = &self / &high;
+            let mut i = 1;
+            while !main.is_const() {
+                let g = main.clone().gcd(high.clone());
+                debug_assert!(g.divides(&main));
+                let factor = main / &g;
+                if !factor.is_const() {
+                    prod *= factor.clone().power(i);
+                    ret.push((factor, i));
+                }
+                debug_assert!(g.divides(&high));
+                high /= &g;
+                main = g;
+                i += 1;
+            }
+        }
+        debug_assert!(prod.divides(&self));
+        let f = &self / &prod;
+        if !f.is_const() {
+            let p = usize::try_from(p).unwrap();
+            let f = f.pth_root().unwrap();
+            let mut v = f.square_free_decomposition();
+            v.iter_mut().for_each(|(_, i)| *i *= p);
+            ret.append(&mut v);
+            ret.sort_unstable_by_key(|(_, i)| *i);
+        }
+        ret
+    }
+    fn ddf_aux(&self, d: usize, x_p_d: &mut Self) -> Option<Self>
+    where
+        T: Clone
+            + Eq
+            + Ord
+            + Zero
+            + One
+            + RingNormalize
+            + ShrAssign<u8>
+            + From<u8>
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + for<'x> MulAssign<&'x T>,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Neg<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>
+            + BitAnd<Output = T>,
+    {
+        let p = self.prime_ref().clone();
+        let x = Self::from_monomial(T::one(), 1, p.clone());
+        take_mut::take(x_p_d, |x_p_d| x_p_d.pow_mod(p.clone(), self));
+        debug_assert!({
+            let pd = ring_algorithm::power::<T, usize>(p.clone(), d);
+            *x_p_d == x.clone().pow_mod(pd, self)
+        });
+        let all_factor = &*x_p_d - &x; // x^{p^d} - x mod target
+        let d_factor = all_factor.gcd(self.clone());
+        if d_factor.is_const() {
+            None
+        } else {
+            debug_assert!(d_factor.divides(self));
+            Some(d_factor)
+        }
+    }
+    /** calculate DDF(distinct degree factorization)
+
+    Input must be square free.
+    `out[d - 1]` is d dgree factor.
+    ```
+    use polynomial_over_finite_prime_field::PolynomialOverP;
+    let p = PolynomialOverP::<i32>::new(vec![1, 2, 1, 1, 1], 3); // (x+1)*(x-1)*(x^2+x-1)
+    let v = p.distinct_degree_factorization();
+    let q1 = PolynomialOverP::<i32>::new(vec![2, 0, 1], 3); // (x+1)*(x-1) = x^2-1
+    let q2 = PolynomialOverP::<i32>::new(vec![2, 1, 1], 3); // x^2+x-1
+    let w = vec![Some(q1), Some(q2)];
+    assert_eq!(v, w);
+    ```
+    */
+    pub fn distinct_degree_factorization(mut self) -> Vec<Option<Self>>
+    where
+        T: Clone
+            + Eq
+            + Ord
+            + Zero
+            + One
+            + RingNormalize
+            + ShrAssign<u8>
+            + From<u8>
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + for<'x> MulAssign<&'x T>,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Neg<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>
+            + BitAnd<Output = T>,
+    {
+        if self.is_const() {
+            return Vec::new();
+        } else if self.deg() == Some(1) {
+            return vec![Some(self)];
+        }
+        let p = self.prime_ref().clone();
+        let mut x_p_d = Self::from_monomial(T::one(), 1, p.clone());
+        let mut ret = Vec::new();
+        for d in 1.. {
+            let d_factor = self.ddf_aux(d, &mut x_p_d);
+            if let Some(d_factor) = &d_factor {
+                self /= d_factor;
+            }
+            ret.push(d_factor);
+            if self.is_const() {
+                break;
+            } else if self.is_at_most_degree(2 * d) {
+                for _ in 1..d {
+                    ret.push(None);
+                }
+                ret.push(Some(self));
+                break;
+            }
+        }
+        ret
+    }
+    pub fn is_irreducible(&self) -> bool
+    where
+        T: Clone
+            + Eq
+            + Ord
+            + Zero
+            + One
+            + RingNormalize
+            + ShrAssign<u8>
+            + From<u8>
+            + for<'x> AddAssign<&'x T>
+            + for<'x> SubAssign<&'x T>
+            + for<'x> MulAssign<&'x T>,
+        for<'x> &'x T: Add<Output = T>
+            + Sub<Output = T>
+            + Neg<Output = T>
+            + Mul<Output = T>
+            + Div<Output = T>
+            + Rem<Output = T>
+            + BitAnd<Output = T>,
+    {
+        if self.is_const() {
+            return false;
+        } else if self.deg() == Some(1) {
+            return true;
+        }
+        let limit = self.deg().unwrap() / 2;
+        let p = self.prime_ref().clone();
+        let mut x_p_d = Self::from_monomial(T::one(), 1, p.clone());
+        for d in 1..=limit {
+            if self.ddf_aux(d, &mut x_p_d).is_some() {
+                return false;
+            }
+        }
+        true
     }
 }
 
